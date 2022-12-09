@@ -211,6 +211,9 @@ class BatchJobBase(WDL.runtime.task_container.TaskContainer):
             job_tags["AWS_BATCH_PARENT_JOB_ID"] = os.environ["AWS_BATCH_JOB_ID"]
         # TODO: set a tag to indicate that this job is a retry of another
 
+        # print self.runtime_values
+        print("runtime values", self.runtime_values)
+
         job_tags["sample"] = self.runtime_values.get("sample", "")
 
         job = aws_batch.submit_job(
