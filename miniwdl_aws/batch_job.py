@@ -211,10 +211,8 @@ class BatchJobBase(WDL.runtime.task_container.TaskContainer):
             job_tags["AWS_BATCH_PARENT_JOB_ID"] = os.environ["AWS_BATCH_JOB_ID"]
         # TODO: set a tag to indicate that this job is a retry of another
 
-        # print self.runtime_values
-        print("runtime values", self.runtime_values)
-
-        job_tags["sample"] = self.runtime_values.get("sample", "")
+        # ADDED THIS LINE
+        job_tags["sample"] = self.runtime_values.get("sample", "none")
 
         job = aws_batch.submit_job(
             jobName=job_name,
@@ -232,6 +230,18 @@ class BatchJobBase(WDL.runtime.task_container.TaskContainer):
             )
         )
         return job["jobId"]
+
+    # ADDED THIS METHOD
+    def process_runtime(self, logger, runtime_eval):
+        """
+        Extend base method to add AWS Batch-specific runtime attributes
+        https://github.com/chanzuckerberg/miniwdl/blob/30a744877cb6c9859f36c660e08b7e4f8c297a32/WDL/runtime/task_container.py#L189
+        https://github.com/miniwdl-ext/miniwdl-backend-example/blob/e38f74997d703c55b1bb498e8e07164421b14dcf/miniwdl_backend_example/docker_run.py#L63-L76
+        """
+        ans = self.runtime_values
+        if "sample" in runtime_eval:
+            ans["sample"] = runtime_eval["sample"]
+        super().process_runtime(logger, runtime_eval)
 
     def _select_job_queue(self):
         if self._job_queue_fallback:
