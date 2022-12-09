@@ -238,10 +238,9 @@ class BatchJobBase(WDL.runtime.task_container.TaskContainer):
         https://github.com/chanzuckerberg/miniwdl/blob/30a744877cb6c9859f36c660e08b7e4f8c297a32/WDL/runtime/task_container.py#L189
         https://github.com/miniwdl-ext/miniwdl-backend-example/blob/e38f74997d703c55b1bb498e8e07164421b14dcf/miniwdl_backend_example/docker_run.py#L63-L76
         """
-        ans = self.runtime_values
-        if "sample" in runtime_eval:
-            ans["sample"] = runtime_eval["sample"]
         super().process_runtime(logger, runtime_eval)
+        if "sample" in runtime_eval:
+            self.runtime_values["sample"] = runtime_eval["sample"]
 
     def _select_job_queue(self):
         if self._job_queue_fallback:
