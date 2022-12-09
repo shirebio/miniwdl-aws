@@ -171,6 +171,19 @@ class BatchJobBase(WDL.runtime.task_container.TaskContainer):
                     link_dirs_made.add(link_dn)
                 symlink_force(host_fn, container_fn)
 
+    # ADDED THIS METHOD
+    def process_runtime(self, logger, runtime_eval):
+        """
+        Extend base method to add AWS Batch-specific runtime attributes
+        https://github.com/chanzuckerberg/miniwdl/blob/30a744877cb6c9859f36c660e08b7e4f8c297a32/WDL/runtime/task_container.py#L189
+        https://github.com/miniwdl-ext/miniwdl-backend-example/blob/e38f74997d703c55b1bb498e8e07164421b14dcf/miniwdl_backend_example/docker_run.py#L63-L76
+        """
+        print("process_runtime")
+        super().process_runtime(logger, runtime_eval)
+        if "sample" in runtime_eval:
+            print("sample in runtime_eval")
+            self.runtime_values["sample"] = runtime_eval["sample"]
+
     def _submit_batch_job(self, logger, cleanup, aws_batch):
         """
         Register & submit AWS batch job, leaving a cleanup callback to deregister the transient
@@ -230,17 +243,6 @@ class BatchJobBase(WDL.runtime.task_container.TaskContainer):
             )
         )
         return job["jobId"]
-
-    # ADDED THIS METHOD
-    def process_runtime(self, logger, runtime_eval):
-        """
-        Extend base method to add AWS Batch-specific runtime attributes
-        https://github.com/chanzuckerberg/miniwdl/blob/30a744877cb6c9859f36c660e08b7e4f8c297a32/WDL/runtime/task_container.py#L189
-        https://github.com/miniwdl-ext/miniwdl-backend-example/blob/e38f74997d703c55b1bb498e8e07164421b14dcf/miniwdl_backend_example/docker_run.py#L63-L76
-        """
-        super().process_runtime(logger, runtime_eval)
-        if "sample" in runtime_eval:
-            self.runtime_values["sample"] = runtime_eval["sample"]
 
     def _select_job_queue(self):
         if self._job_queue_fallback:
